@@ -119,20 +119,33 @@ class MyRepetierServerClass:
 
 				if MyVarPrinter['job'] != "none":
 					MyVarPrinter['online'] = "Printing"
+
+					if self.ClassSys.GetReading(MyVarPrinterName, 'state') != "Now Printing":
+						self.ClassSys.AddReading(MyVarPrinterName, 'state', 'Now Printing')
 				elif MyVarPrinter['online'] == 1:
 					MyVarPrinter['online'] = "Online"
+
+					if self.ClassSys.GetReading(MyVarPrinterName, 'state') == "Now Printing":
+						self.ClassSys.AddReading(MyVarPrinterName, 'JobLast', self.ClassSys.GetReading(MyVarPrinterName, 'Job'))
+						self.ClassSys.AddReading(MyVarPrinterName, 'state', 'Now Printing Finish')
+					elif self.ClassSys.GetReading(MyVarPrinterName, 'state') != "Now Online":
+						self.ClassSys.AddReading(MyVarPrinterName, 'state', 'Now Online')
 				else:
 					MyVarPrinter['online'] = "Offline"
 
-				MyVarLastState = self.ClassSys.GetReading(MyVarPrinterName, 'online')
+					if self.ClassSys.GetReading(MyVarPrinterName, 'state') != "Now Offline":
+						self.ClassSys.AddReading(MyVarPrinterName, 'state', 'Now Offline')
 
-				if MyVarPrinter['online'] != MyVarLastState:
-					if MyVarLastState != "Printing" and MyVarPrinter['online'] == "Printing":
-						self.ClassSys.AddReading(MyVarPrinterName, 'state', 'Now Printing')
-						self.ClassSys.AddReading(MyVarPrinterName, 'JobLast', 'None')
-					elif MyVarLastState == "Printing" and MyVarPrinter['online'] != "Printing":
-						self.ClassSys.AddReading(MyVarPrinterName, 'state', 'Now Printing Finish')
-						self.ClassSys.AddReading(MyVarPrinterName, 'JobLast', self.ClassSys.GetReading(MyVarPrinterName, 'Job'))
+				
+#				MyVarLastState = self.ClassSys.GetReading(MyVarPrinterName, 'online')
+
+#				if MyVarPrinter['online'] != MyVarLastState:
+#					if MyVarLastState != "Printing" and MyVarPrinter['online'] == "Printing":
+#						self.ClassSys.AddReading(MyVarPrinterName, 'state', 'Now Printing')
+#						self.ClassSys.AddReading(MyVarPrinterName, 'JobLast', 'None')
+#					elif MyVarLastState == "Printing" and MyVarPrinter['online'] != "Printing":
+#						self.ClassSys.AddReading(MyVarPrinterName, 'state', 'Now Printing Finish')
+#						self.ClassSys.AddReading(MyVarPrinterName, 'JobLast', self.ClassSys.GetReading(MyVarPrinterName, 'Job'))
 
 				if MyVarPrinter['pauseState'] == 1:
 					MyVarPrinter['pauseState'] = True
