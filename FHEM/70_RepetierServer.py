@@ -77,6 +77,7 @@ class MyRepetierServerClass:
 				self.GetServerInfo(MyVarServer)
 				self.GetPrinterInfo(MyVarServer)
 				self.GetPrinterData(MyVarServer)
+				self.ClassSys.AddReading(MyVarServer['Name'], 'RunState', 'OK')
 			except:
 				self.ClassSys.AddReading(MyVarServer['Name'], 'state', 'Offline')
 				for MyVarPrinter in self.ClassSys.FHEM.get_readings(name=MyVarServer['Name'] + "..*", value_only=True):
