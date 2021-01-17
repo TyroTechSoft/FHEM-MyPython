@@ -123,10 +123,13 @@ class MyRepetierServerClass:
 				else:
 					MyVarPrinter['online'] = "Offline"
 
-				MyVarLastState = self.ClassSys.GetReading(MyVarPrinterName, 'state')
+				MyVarLastState = self.ClassSys.GetReading(MyVarPrinterName, 'online')
 
 				if MyVarPrinter['online'] != MyVarLastState:
-					if MyVarLastState == "Now Printing" and MyVarPrinter['online'] != "Printing":
+					if MyVarLastState != "Printing" and MyVarPrinter['online'] == "Printing":
+						self.ClassSys.AddReading(MyVarPrinterName, 'state', 'Now Printing')
+						self.ClassSys.AddReading(MyVarPrinterName, 'JobLast', 'None')
+					elif MyVarLastState == "Printing" and MyVarPrinter['online'] != "Printing":
 						self.ClassSys.AddReading(MyVarPrinterName, 'state', 'Now Printing Finish')
 						self.ClassSys.AddReading(MyVarPrinterName, 'JobLast', self.ClassSys.GetReading(MyVarPrinterName, 'Job'))
 
