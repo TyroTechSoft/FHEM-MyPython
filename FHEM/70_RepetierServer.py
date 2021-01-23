@@ -216,26 +216,29 @@ class MyRepetierServerClass:
 				self.ClassSys.AddReading(MyVarDevice, 'Y', round(MyVarPrinter['y'], 3))
 				self.ClassSys.AddReading(MyVarDevice, 'Z', round(MyVarPrinter['z'], 3))
 
-				for MyVarKey in str(len(MyVarPrinter['extruder'])):
-					MyVarKey = int(MyVarKey)-1
-					MyVarKeyStr = str(MyVarKey)
-					self.ClassSys.AddReading(MyVarDevice, 'E' + MyVarKeyStr + 'Error', MyVarPrinter['extruder'][MyVarKey]['error'])
-					self.ClassSys.AddReading(MyVarDevice, 'E' + MyVarKeyStr + 'TempGet', round(MyVarPrinter['extruder'][MyVarKey]['tempRead'], 2))
-					self.ClassSys.AddReading(MyVarDevice, 'E' + MyVarKeyStr + 'TempSet', round(MyVarPrinter['extruder'][MyVarKey]['tempSet'], 2))
-				
+				MyVarCount = 0
+				for MyVarKey in MyVarPrinter['extruder']:
+					MyVarKeyStr = str(MyVarCount)
+					self.ClassSys.AddReading(MyVarDevice, 'E' + MyVarKeyStr + 'Error', MyVarPrinter['extruder'][MyVarCount]['error'])
+					self.ClassSys.AddReading(MyVarDevice, 'E' + MyVarKeyStr + 'TempGet', round(MyVarPrinter['extruder'][MyVarCount]['tempRead'], 2))
+					self.ClassSys.AddReading(MyVarDevice, 'E' + MyVarKeyStr + 'TempSet', round(MyVarPrinter['extruder'][MyVarCount]['tempSet'], 2))
+					MyVarCount += 1
+
+				MyVarCount = 0
 				for MyVarKey in str(len(MyVarPrinter['heatedBeds'])):
-					MyVarKey = int(MyVarKey)-1
-					MyVarKeyStr = str(MyVarKey)
-					self.ClassSys.AddReading(MyVarDevice, 'B' + MyVarKeyStr + 'Error', MyVarPrinter['heatedBeds'][MyVarKey]['error'])
-					self.ClassSys.AddReading(MyVarDevice, 'B' + MyVarKeyStr + 'TempGet', round(MyVarPrinter['heatedBeds'][MyVarKey]['tempRead'], 2))
-					self.ClassSys.AddReading(MyVarDevice, 'B' + MyVarKeyStr + 'TempSet', round(MyVarPrinter['heatedBeds'][MyVarKey]['tempSet'], 2))
-					self.ClassSys.AddReading(MyVarDevice, 'B' + MyVarKeyStr + 'OutPut', round(MyVarPrinter['heatedBeds'][MyVarKey]['output'], 2))
+					MyVarKeyStr = str(MyVarCount)
+					self.ClassSys.AddReading(MyVarDevice, 'B' + MyVarKeyStr + 'Error', MyVarPrinter['heatedBeds'][MyVarCount]['error'])
+					self.ClassSys.AddReading(MyVarDevice, 'B' + MyVarKeyStr + 'TempGet', round(MyVarPrinter['heatedBeds'][MyVarCount]['tempRead'], 2))
+					self.ClassSys.AddReading(MyVarDevice, 'B' + MyVarKeyStr + 'TempSet', round(MyVarPrinter['heatedBeds'][MyVarCount]['tempSet'], 2))
+					self.ClassSys.AddReading(MyVarDevice, 'B' + MyVarKeyStr + 'OutPut', round(MyVarPrinter['heatedBeds'][MyVarCount]['output'], 2))
+					MyVarCount += 1
 				
+				MyVarCount = 0
 				for MyVarKey in str(len(MyVarPrinter['fans'])):
-					MyVarKey = int(MyVarKey)-1
-					MyVarKeyStr = str(MyVarKey)
-					self.ClassSys.AddReading(MyVarDevice, 'F' + MyVarKeyStr + 'Activ', MyVarPrinter['fans'][MyVarKey]['on'])
-					self.ClassSys.AddReading(MyVarDevice, 'F' + MyVarKeyStr + 'PWM', MyVarPrinter['fans'][MyVarKey]['voltage'])
+					MyVarKeyStr = str(MyVarCount)
+					self.ClassSys.AddReading(MyVarDevice, 'F' + MyVarKeyStr + 'Activ', MyVarPrinter['fans'][MyVarCount]['on'])
+					self.ClassSys.AddReading(MyVarDevice, 'F' + MyVarKeyStr + 'PWM', MyVarPrinter['fans'][MyVarCount]['voltage'])
+					MyVarCount += 1
 
 
 ##############################################################
