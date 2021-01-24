@@ -48,7 +48,7 @@ from pathlib import Path
 ##############################################################
 ### Define System Variables
 
-MyVarVersionID = 2
+MyVarVersionID = 3
 
 if __name__ == "__main__":
 	MyVarSysArgs = sys.argv[1:]
