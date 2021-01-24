@@ -3,8 +3,8 @@
 #######################################################################################################################################
 #                          
 #  FHEM-MyPython                                                                                                    
-#   70_RepetierServer.py - V0.7
-#    Date: 17.01.2020 - 07:16 Uhr
+#   70_RepetierServer.py - V0.7 - VID 1
+#    Date: 24.01.2020 - 12:19 Uhr
 # 
 #  by TyroTechSoft.de
 #
@@ -13,8 +13,22 @@
 # RepetierServer:						# Get Data from Server
 #			"70_RepetierServer.py IP Port Protocol User Pass TimeOut"
 #
+# RepetierServer:						# Send Printer CMD
+#			"70_RepetierServer.py IP Port Protocol User Pass TimeOut Device Typ CMD"
+#
+##############
+#
+# IP				= IP from FHEM
+# Port			= Port from FHEM
+# Protocol	= Protocol from FHEM
+# User			= User from FHEM
+# Pass			= Pass From FHEM
+# TimeOut		= TimeOut from FHEM
+# Device		= Device that is using the CMD
+# TYP				= Witch Typ of CMD (GCode / CMD / Coordinate) [Coordinate Check the Reading "HasHome XYZ" is it False, he do Homing]
+# CMD				= Sends the CMD for the Typ
+#
 #######################################################################################################################################
-
 
 ##############################################################
 ### Imported Library
@@ -32,13 +46,54 @@ from pathlib import Path
 
 
 ##############################################################
+### Define System Variables
+
+MyVarVersionID = 1
+
+if __name__ == "__main__":
+	MyVarSysArgs = sys.argv[1:]
+
+try:
+	MyVarSysDataFHEM = {
+		'IP': MyVarSysArgs[0],
+		'Port': MyVarSysArgs[1],
+		'Protocol': MyVarSysArgs[2],
+		'User': MyVarSysArgs[3],
+		'Pass': MyVarSysArgs[4],
+		'TimeOut': MyVarSysArgs[5]}
+
+	try:
+		MyVarSysDataCMD = {
+			'Device': MyVarSysArgs[6],
+			'Typ': MyVarSysArgs[7],
+			'CMD': MyVarSysArgs[8]}
+	except:
+		MyVarSysDataCMD = {
+			'Device': '',
+			'Typ': '',
+			'CMD': ''}
+except:
+	MyVarSysArgs = {0: 'NoArgs'}
+
+if MyVarSysArgs[0] == "NoArgs":
+	print("RepetierServer: No Args given!")
+else:
+	MyVarSysData = {
+		'Path': 'FHEM/MyPython/',
+		'VID': MyVarVersionID,
+		'Control': MyVarSysDataCMD,
+		'FHEM': MyVarSysDataFHEM}
+
+
+##############################################################
 ### Classes / Function
 
 class MyClassSys:
 	def __init__(self, MyVarSysData):
 		self.AddReadings = ""
 		self.Log = MyClassLog()
-		self.TimeOut = MyVarSysData['FHEM']['TimeOut']
+		self.TimeOut = int(MyVarSysData['FHEM']['TimeOut'])
+		self.VersionID = MyVarSysData['VID']
 
 		logging.basicConfig()
 		self.FHEM = fhem.Fhem(MyVarSysData['FHEM']['IP'], port=MyVarSysData['FHEM']['Port'], protocol=MyVarSysData['FHEM']['Protocol'], username=MyVarSysData['FHEM']['User'], password=MyVarSysData['FHEM']['Pass'])
@@ -48,15 +103,34 @@ class MyClassSys:
 		if self.AddReadings != "":
 			self.AddReadings += ";"
 
-		self.AddReadings += "setreading " + MyVarDevice + " " + str(MyVarReading) + " " + str(MyVarValue)
+		self.AddReadings += "setreading "+ self.DelSpace(MyVarDevice) +" "+ self.DelSpace(MyVarReading) +" "+ str(MyVarValue)
+
+	def AddCMD(self, MyVarCMD):
+		if self.AddReadings != "":
+			self.AddReadings += ";"
+
+		self.AddReadings += MyVarCMD
+
+
+	def ExecuteReadings(self):
+		if self.AddReadings != "":
+			self.SetCMD(self.AddReadings)
 
 
 	def GetReading(self, MyVarDevice, MyVarReading):
 		return self.FHEM.get_device_reading(MyVarDevice, MyVarReading, value_only=True)
 
 
-	def SetReading(self, MyCMD):
-		self.FHEM.send_cmd(MyCMD, timeout = self.TimeOut)
+	def SetReading(self, MyVarDevice, MyVarReading, MyVarValue):
+		self.FHEM.send_cmd("setreading "+ self.DelSpace(MyVarDevice) +" "+ self.DelSpace(MyVarReading) +" "+ str(MyVarValue), timeout=self.TimeOut)
+
+
+	def SetCMD(self, MyCMD):
+		self.FHEM.send_cmd(MyCMD, timeout=self.TimeOut)
+
+
+	def DelSpace(self, MyVarString):
+		return str(MyVarString).replace(" ", "").replace("-", "_")
 
 
 class MyClassLog:
@@ -72,29 +146,58 @@ class MyRepetierServerClass:
 		self.PrinterList = {}
 		self.ClassSys = MyClassSys(MyVarSysData)
 
+		if MyVarSysData['Control']['Device'] != "" and MyVarSysData['Control']['Typ'] != "" and MyVarSysData['Control']['CMD'] != "":
+			self.RunCMD()
+		else:
+			self.GetData()
+
+
+	def CheckDeviceVersion(self, MyVarDevice, MyVarDeviceServer):
+		try:
+			MyVarVerionID = int(self.ClassSys.GetReading(MyVarDevice, "VersionID"))
+		except:
+			MyVarVerionID = 0
+
+		if MyVarVerionID < 1 and self.ClassSys.VersionID >= 1:
+			if MyVarDeviceServer == True:
+				pass
+			else:
+				MyVarDefine = "define " + MyVarDevice + " dummy;"
+				MyVarDefine += "attr " + MyVarDevice + " userattr RS-Device:Printer;"
+				MyVarDefine += "attr " + MyVarDevice + " RS-Device Printer;"
+				MyVarDefine += "attr " + MyVarDevice + " event-on-change-reading .*;"
+				MyVarDefine += "attr " + MyVarDevice + " group RepetierServer;"
+				MyVarDefine += "attr " + MyVarDevice + " event-on-change-reading .*"
+				self.ClassSys.SetCMD(MyVarDefine)
+
+		self.ClassSys.AddReading(MyVarDevice, "VersionID", self.ClassSys.VersionID)
+
+
+	def RunCMD(self):
+		pass
+
+
+	def GetData(self):
 		for MyVarServer in self.ClassSys.FHEM.get(filters={'RS-Device': 'Server'}):
 			try:
-				self.GetServerInfo(MyVarServer)
-				self.GetPrinterInfo(MyVarServer)
-				self.GetPrinterData(MyVarServer)
+				self.GetDataInfoServer(MyVarServer)
+				self.GetDataInfoPrinter(MyVarServer)
 				self.ClassSys.AddReading(MyVarServer['Name'], 'RunState', 'OK!')
 			except:
 				self.ClassSys.AddReading(MyVarServer['Name'], 'RunState', 'Can\'t Connect to Server!')
-				self.ClassSys.AddReading(MyVarServer['Name'], 'state', 'Offline')
-				for MyVarPrinter in self.ClassSys.FHEM.get_readings(name=MyVarServer['Name'] + "..*", value_only=True):
-					self.ClassSys.AddReading(MyVarPrinter, 'Online', 'Offline')
-
-		self.ClassSys.SetReading(self.ClassSys.AddReadings)
 
 
-	def GetServerInfo(self, MyVarServer):
+	def GetDataInfoServer(self, MyVarServer):
+		self.CheckDeviceVersion(MyVarServer['Name'], True)
+
 		with urllib.request.urlopen(MyVarServer['Attributes']['RS-Protocol'] + '://' + MyVarServer['Attributes']['RS-IP'] + ':' + str(MyVarServer['Attributes']['RS-Port']) + "/printer/info?apikey=" + MyVarServer['Attributes']['RS-Token'], timeout=5) as _MyVarRequest:
 			MyVarData = json.loads(_MyVarRequest.read().decode())
-
+			
 			self.ClassSys.AddReading(MyVarServer['Name'], 'state', 'Online')
 			self.ClassSys.AddReading(MyVarServer['Name'], 'Servername', MyVarData['servername'])
 			self.ClassSys.AddReading(MyVarServer['Name'], 'Version', MyVarData['version'])
 			self.ClassSys.AddReading(MyVarServer['Name'], 'Name', MyVarData['name'])
+			self.ClassSys.AddReading(MyVarServer['Name'], 'Printer_Count', len(MyVarData['printers']))
 
 			for MyVarPrinter in MyVarData['printers']:
 				if MyVarPrinter['online'] == 1:
@@ -102,21 +205,18 @@ class MyRepetierServerClass:
 				else:
 					MyVarPrinter['online'] = "Offline"
 
-				self.ClassSys.AddReading(MyVarServer['Name'], MyVarPrinter['name'] + '_Name', MyVarPrinter['name'])
-				self.ClassSys.AddReading(MyVarServer['Name'], MyVarPrinter['name'] + '_Active', MyVarPrinter['active'])
-				self.ClassSys.AddReading(MyVarServer['Name'], MyVarPrinter['name'] + '_Online', MyVarPrinter['online'])
-				self.ClassSys.AddReading(MyVarServer['Name'], MyVarPrinter['name'] + '_Slug', MyVarPrinter['slug'])
+				self.ClassSys.AddReading(MyVarServer['Name'], 'Printer_' + MyVarPrinter['name'] + '_Name', MyVarPrinter['name'])
+				self.ClassSys.AddReading(MyVarServer['Name'], 'Printer_' + MyVarPrinter['name'] + '_Active', MyVarPrinter['active'])
+				self.ClassSys.AddReading(MyVarServer['Name'], 'Printer_' + MyVarPrinter['name'] + '_Online', MyVarPrinter['online'])
+				self.ClassSys.AddReading(MyVarServer['Name'], 'Printer_' + MyVarPrinter['name'] + '_Slug', MyVarPrinter['slug'])
 
 
-	def GetPrinterInfo(self, MyVarServer):
+	def GetDataInfoPrinter(self, MyVarServer):
 		with urllib.request.urlopen(MyVarServer['Attributes']['RS-Protocol'] + '://' + MyVarServer['Attributes']['RS-IP'] + ':' + str(MyVarServer['Attributes']['RS-Port']) + "/printer/list?apikey=" + MyVarServer['Attributes']['RS-Token'], timeout=5) as _MyVarRequest:
 			for MyVarPrinter in json.loads(_MyVarRequest.read().decode())['data']:
-				MyVarPrinterName = MyVarServer['Name'] + "." + MyVarPrinter['name']
-				
+				MyVarPrinterName = self.ClassSys.DelSpace(MyVarServer['Name'] + "." + MyVarPrinter['name'])
 				self.PrinterList[MyVarPrinter['slug']] = MyVarPrinterName
-				
-				if self.ClassSys.FHEM.get(name=MyVarPrinterName) == {}:
-					self.ClassSys.FHEM.send_cmd("define " + MyVarServer['Name'] + "." + MyVarPrinter['name'] + " dummy;attr " + MyVarServer['Name'] + "." + MyVarPrinter['name'] + " group RepetierServer")
+				self.CheckDeviceVersion(MyVarPrinterName, False)
 
 				if MyVarPrinter['job'] != "none":
 					MyVarPrinter['online'] = "Printing"
@@ -136,17 +236,6 @@ class MyRepetierServerClass:
 
 					if self.ClassSys.GetReading(MyVarPrinterName, 'state') != "Now Offline":
 						self.ClassSys.AddReading(MyVarPrinterName, 'state', 'Now Offline')
-
-				
-#				MyVarLastState = self.ClassSys.GetReading(MyVarPrinterName, 'online')
-
-#				if MyVarPrinter['online'] != MyVarLastState:
-#					if MyVarLastState != "Printing" and MyVarPrinter['online'] == "Printing":
-#						self.ClassSys.AddReading(MyVarPrinterName, 'state', 'Now Printing')
-#						self.ClassSys.AddReading(MyVarPrinterName, 'JobLast', 'None')
-#					elif MyVarLastState == "Printing" and MyVarPrinter['online'] != "Printing":
-#						self.ClassSys.AddReading(MyVarPrinterName, 'state', 'Now Printing Finish')
-#						self.ClassSys.AddReading(MyVarPrinterName, 'JobLast', self.ClassSys.GetReading(MyVarPrinterName, 'Job'))
 
 				if MyVarPrinter['pauseState'] == 1:
 					MyVarPrinter['pauseState'] = True
@@ -186,7 +275,6 @@ class MyRepetierServerClass:
 					self.ClassSys.AddReading(MyVarPrinterName, 'PrintEnd', None)
 
 
-	def GetPrinterData(self, MyVarServer):
 		with urllib.request.urlopen(MyVarServer['Attributes']['RS-Protocol'] + '://' + MyVarServer['Attributes']['RS-IP'] + ':' + str(MyVarServer['Attributes']['RS-Port']) + "/printer/api?a=stateList&apikey=" + MyVarServer['Attributes']['RS-Token'], timeout=5) as _MyVarRequest:
 			MyVarPrinters = json.loads(_MyVarRequest.read().decode())
 			
@@ -241,34 +329,10 @@ class MyRepetierServerClass:
 					MyVarCount += 1
 
 
-##############################################################
-### Define System Variables
-
-if __name__ == "__main__":
-	MyVarSysArgs = sys.argv[1:]
-
-try:
-	if MyVarSysArgs[0] != "":
-		pass
-except:
-	MyVarSysArgs = {0: 'NoArgs'}
 
 
 ##############################################################
 ### Program
 
-if MyVarSysArgs[0] == "NoArgs":
-	print("RepetierServer: No Args given!")
-else:
-	MyVarSysData = {
-		'Path': 'FHEM/MyPython/',
-		'FHEM': {
-			'IP': str(MyVarSysArgs[0]),
-			'Port': str(MyVarSysArgs[1]),
-			'Protocol': str(MyVarSysArgs[2]),
-			'User': str(MyVarSysArgs[3]),
-			'Pass': str(MyVarSysArgs[4]),
-			'TimeOut': int(MyVarSysArgs[5])
-			}
-		}
-	MyVarRun = MyRepetierServerClass(MyVarSysData)
+MyVarRun = MyRepetierServerClass(MyVarSysData)
+MyVarRun.ClassSys.ExecuteReadings()
