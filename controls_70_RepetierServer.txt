@@ -1,1 +1,1 @@
-UPD 2021-01-24_15:19:23 14900 FHEM/70_RepetierServer.py
+UPD 2021-01-24_15:27:40 15337 FHEM/70_RepetierServer.py

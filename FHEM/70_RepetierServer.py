@@ -3,7 +3,7 @@
 #######################################################################################################################################
 #                          
 #  FHEM-MyPython                                                                                                    
-#   70_RepetierServer.py - V0.7 - VID 1
+#   70_RepetierServer.py - V0.7 - VID 2
 #    Date: 24.01.2020 - 12:19 Uhr
 # 
 #  by TyroTechSoft.de
@@ -48,7 +48,7 @@ from pathlib import Path
 ##############################################################
 ### Define System Variables
 
-MyVarVersionID = 1
+MyVarVersionID = 2
 
 if __name__ == "__main__":
 	MyVarSysArgs = sys.argv[1:]
@@ -169,6 +169,18 @@ class MyRepetierServerClass:
 				MyVarDefine += "attr " + MyVarDevice + " group RepetierServer;"
 				MyVarDefine += "attr " + MyVarDevice + " event-on-change-reading .*"
 				self.ClassSys.SetCMD(MyVarDefine)
+
+		if MyVarVerionID < 2 and self.ClassSys.VersionID >= 2:
+			if MyVarDeviceServer == True:
+				pass
+			else:
+				self.ClassSys.SetCMD("attr " + MyVarDevice + " setList CMD:Home-All,Home-X,Home-Y,Home-Z")
+
+		if MyVarVerionID < 3 and self.ClassSys.VersionID >= 3:
+			if MyVarDeviceServer == True:
+				pass
+			else:
+				self.ClassSys.SetCMD("attr " + MyVarDevice + " setList CMD:Home-All,Home-X,Home-Y,Home-Z GCode Coordinate")
 
 		self.ClassSys.AddReading(MyVarDevice, "VersionID", self.ClassSys.VersionID)
 
