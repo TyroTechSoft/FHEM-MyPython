@@ -3,7 +3,7 @@
 #######################################################################################################################################
 #                          
 #  FHEM-MyPython                                                                                                    
-#   70_RepetierServer.py - V0.8 - VID 2
+#   70_RepetierServer.py - V0.8.7 - VersionsID 3
 #    Date: 24.01.2020 - 12:19 Uhr
 # 
 #  by TyroTechSoft.de
@@ -43,6 +43,7 @@ import json
 import urllib.request
 import time
 import datetime
+import urllib
 
 from pathlib import Path
 
@@ -68,7 +69,13 @@ try:
 		MyVarSysDataCMD = {
 			'Device': MyVarSysArgs[6],
 			'Typ': MyVarSysArgs[7],
-			'CMD': MyVarSysArgs[8]}
+			'CMD': ''}
+
+		for MyVarParm in MyVarSysArgs[8:]:
+			if MyVarSysDataCMD['CMD'] != "":
+				MyVarSysDataCMD['CMD'] += " "
+			MyVarSysDataCMD['CMD'] += MyVarParm
+		
 	except:
 		MyVarSysDataCMD = {
 			'Device': '',
@@ -123,6 +130,10 @@ class MyClassSys:
 		return self.FHEM.get_device_reading(MyVarDevice, MyVarReading, value_only=True)
 
 
+	def GetReadings(self, MyVarDevice):
+		return self.FHEM.get_device_reading(MyVarDevice, value_only=True)
+
+
 	def SetReading(self, MyVarDevice, MyVarReading, MyVarValue):
 		self.FHEM.send_cmd("setreading "+ self.DelSpace(MyVarDevice) +" "+ self.DelSpace(MyVarReading) +" "+ str(MyVarValue), timeout=self.TimeOut)
 
@@ -149,7 +160,7 @@ class MyRepetierServerClass:
 		self.ClassSys = MyClassSys(MyVarSysData)
 
 		if MyVarSysData['Control']['Device'] != "" and MyVarSysData['Control']['Typ'] != "" and MyVarSysData['Control']['CMD'] != "":
-			self.RunCMD()
+			self.RunCMD(MyVarSysData)
 		else:
 			self.GetData()
 
@@ -160,7 +171,8 @@ class MyRepetierServerClass:
 		except:
 			MyVarVerionID = 0
 
-		if MyVarVerionID < 1 and self.ClassSys.VersionID >= 1:
+		MyVarCheckID = 1
+		if MyVarVerionID < MyVarCheckID and self.ClassSys.VersionID >= MyVarCheckID:
 			if MyVarDeviceServer == True:
 				pass
 			else:
@@ -172,23 +184,93 @@ class MyRepetierServerClass:
 				MyVarDefine += "attr " + MyVarDevice + " event-on-change-reading .*"
 				self.ClassSys.SetCMD(MyVarDefine)
 
-		if MyVarVerionID < 2 and self.ClassSys.VersionID >= 2:
+		MyVarCheckID = 2
+		if MyVarVerionID < MyVarCheckID and self.ClassSys.VersionID >= MyVarCheckID:
 			if MyVarDeviceServer == True:
 				pass
 			else:
 				self.ClassSys.SetCMD("attr " + MyVarDevice + " setList CMD:Home-All,Home-X,Home-Y,Home-Z")
 
-		if MyVarVerionID < 3 and self.ClassSys.VersionID >= 3:
+		MyVarCheckID = 3
+		if MyVarVerionID < MyVarCheckID and self.ClassSys.VersionID >= MyVarCheckID:
 			if MyVarDeviceServer == True:
 				pass
 			else:
-				self.ClassSys.SetCMD("attr " + MyVarDevice + " setList CMD:Home-All,Home-X,Home-Y,Home-Z GCode Coordinate")
+				self.ClassSys.SetCMD("attr " + MyVarDevice + " setList CMD:Home-All,Home-XY,Home-X,Home-Y,Home-Z GCode")
+
+		MyVarCheckID = 4
+		if MyVarVerionID < MyVarCheckID and self.ClassSys.VersionID >= MyVarCheckID:
+			if MyVarDeviceServer == True:
+				pass
+			else:
+				pass
+
+		MyVarCheckID = 5
+		if MyVarVerionID < MyVarCheckID and self.ClassSys.VersionID >= MyVarCheckID:
+			if MyVarDeviceServer == True:
+				pass
+			else:
+				pass
 
 		self.ClassSys.AddReading(MyVarDevice, "VersionID", self.ClassSys.VersionID)
 
 
-	def RunCMD(self):
-		pass
+	def RunCMD(self, MyVarSysData):
+		MyVarDeviceData = self.ClassSys.GetReadings(MyVarSysData['Control']['Device'])
+		MyVarServer = self.ClassSys.FHEM.get(name=MyVarSysData['Control']['Device'].replace("." + MyVarDeviceData['Name'].replace(" ", "").replace("-", "_"), ""))
+		MyVarSysData['Server'] = MyVarServer[0]
+		MyVarSysData['Printer'] = MyVarDeviceData
+		MyVarSysData['SendGcode'] = ""
+
+		if MyVarDeviceData['Online'] == "Online":######################################################################################################################################################################################################################
+			if MyVarSysData['Control']['Typ'] == "CMD":
+				if MyVarSysData['Control']['CMD'] == "Home-All":
+					MyVarSysData['SendGcode'] = {'Typ': 'cmd', 'CMD': 'G28'}
+					self.RunCMDExecute(MyVarSysData)
+				elif MyVarSysData['Control']['CMD'] == "Home-XY":
+					MyVarSysData['SendGcode'] = {'Typ': 'cmd', 'CMD': 'G28 X Y'}
+					self.RunCMDExecute(MyVarSysData)
+				elif MyVarSysData['Control']['CMD'] == "Home-X":
+					MyVarSysData['SendGcode'] = {'Typ': 'cmd', 'CMD': 'G28 X'}
+					self.RunCMDExecute(MyVarSysData)
+				elif MyVarSysData['Control']['CMD'] == "Home-Y":
+					MyVarSysData['SendGcode'] = {'Typ': 'cmd', 'CMD': 'G28 Y'}
+					self.RunCMDExecute(MyVarSysData)
+				elif MyVarSysData['Control']['CMD'] == "Home-Z":
+					MyVarSysData['SendGcode'] = {'Typ': 'cmd', 'CMD': 'G28 Z'}
+					self.RunCMDExecute(MyVarSysData)
+
+			elif MyVarSysData['Control']['Typ'] == "GCode":
+				MyVarSysData['SendGcode'] = {'Typ': 'cmd', 'CMD': MyVarSysData['Control']['CMD']}
+				self.RunCMDExecute(MyVarSysData)
+			elif MyVarSysData['Control']['Typ'] == "Coordinate":
+				for MyVarValue in MyVarSysData['Control']['CMD'].split(" "):
+
+					if MyVarDeviceData['Has' + MyVarValue[0] + 'Home'] != "True":
+						print("Ja")
+
+					if MyVarValue[0] == "X":
+						pass
+					elif MyVarValue[0] == "Y":
+						pass
+					elif MyVarValue[0] == "Z":
+						pass
+
+					#print(MyVarValue[1:])
+
+				self.ClassSys.AddReading(MyVarSysData['Control']['Device'], 'LastCMD', MyVarSysData['Control']['Typ'] + ": " + MyVarSysData['Control']['CMD'])
+			else:
+				self.ClassSys.AddReading(MyVarSysData['Control']['Device'], 'LastCMD', 'Unknown Command! ' + MyVarSysData['Control']['Typ'])
+		elif MyVarDeviceData['Online'] == "Printing":
+			self.ClassSys.AddReading(MyVarSysData['Control']['Device'], 'LastCMD', "Printer is Printing! Nothing done!")
+		elif MyVarDeviceData['Online'] == "Offline":
+			self.ClassSys.AddReading(MyVarSysData['Control']['Device'], 'LastCMD', "Printer is Offline! Nothing done!")
+
+
+	def RunCMDExecute(self, MyVarSysData):
+		MyVarUrl = MyVarSysData['Server']['Attributes']['RS-Protocol'] + '://' + MyVarSysData['Server']['Attributes']['RS-IP'] + ':' + str(MyVarSysData['Server']['Attributes']['RS-Port']) + "/printer/api/" + MyVarSysData['Printer']['Slug'] + "?a=send&data={\"" + MyVarSysData['SendGcode']['Typ'] + "\":\"" + MyVarSysData['SendGcode']['CMD'] + "\"}&apikey=" + MyVarSysData['Server']['Attributes']['RS-Token']
+		MyVarSendCMD = urllib.request.urlopen(MyVarUrl.replace(" ", "%20"), timeout=5)
+		#print(MyVarSendCMD.getcode())
 
 
 	def GetData(self):
@@ -197,8 +279,15 @@ class MyRepetierServerClass:
 				self.GetDataInfoServer(MyVarServer)
 				self.GetDataInfoPrinter(MyVarServer)
 				self.ClassSys.AddReading(MyVarServer['Name'], 'RunState', 'OK!')
+				self.ClassSys.AddReading(MyVarServer['Name'], 'state', 'Online')
 			except:
 				self.ClassSys.AddReading(MyVarServer['Name'], 'RunState', 'Can\'t Connect to Server!')
+				self.ClassSys.AddReading(MyVarServer['Name'], 'state', 'Offline')
+				
+				for MyVarPrinter in self.ClassSys.FHEM.get_readings(name=MyVarServer['Name']+"..*"):
+					self.ClassSys.AddReading(MyVarPrinter, 'state', 'Now Offline')
+					self.ClassSys.AddReading(MyVarPrinter, 'Online', 'Offline')
+				
 
 
 	def GetDataInfoServer(self, MyVarServer):
@@ -232,6 +321,8 @@ class MyRepetierServerClass:
 				self.PrinterList[MyVarPrinter['slug']] = MyVarPrinterName
 				self.CheckDeviceVersion(MyVarPrinterName, False)
 
+				self.ClassSys.AddReading(MyVarPrinterName, 'RS-Server', MyVarServer['Name'])
+
 				if MyVarPrinter['job'] != "none":
 					MyVarPrinter['online'] = "Printing"
 
@@ -261,6 +352,10 @@ class MyRepetierServerClass:
 				else:
 					MyVarPrinter['paused'] = False
 
+				if MyVarPrinter['job'] == "None":
+					MyVarPrinter['job'] = "None"
+
+				self.ClassSys.AddReading(MyVarPrinterName, 'Connected2Server', MyVarServer['Name'])		
 				self.ClassSys.AddReading(MyVarPrinterName, 'Activ', MyVarPrinter['active'])
 				self.ClassSys.AddReading(MyVarPrinterName, 'Job', MyVarPrinter['job'])
 				self.ClassSys.AddReading(MyVarPrinterName, 'Name', MyVarPrinter['name'])
@@ -341,8 +436,6 @@ class MyRepetierServerClass:
 					self.ClassSys.AddReading(MyVarDevice, 'F' + MyVarKeyStr + 'Activ', MyVarPrinter['fans'][MyVarCount]['on'])
 					self.ClassSys.AddReading(MyVarDevice, 'F' + MyVarKeyStr + 'PWM', MyVarPrinter['fans'][MyVarCount]['voltage'])
 					MyVarCount += 1
-
-
 
 
 ##############################################################
