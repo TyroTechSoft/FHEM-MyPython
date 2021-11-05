@@ -223,10 +223,10 @@ class MyPowerMessurementClass:
 				MyVarPmArray['PmYear'] = round(MyVarDeviceData[0]['Readings']['PmYear']['Value'] + MyVarCurCount,3)
 				MyVarPmArray['PmTotal'] = round(MyVarDeviceData[0]['Readings']['PmTotal']['Value'] + MyVarCurCount,3)
 
-				MyVarPmArray['PmTodayCost'] = MyVarDeviceData[0]['Readings']['PmTodayCost']['Value'] + MyVarCurPrice
-				MyVarPmArray['PmMonthCost'] = MyVarDeviceData[0]['Readings']['PmMonthCost']['Value'] + MyVarCurPrice
-				MyVarPmArray['PmYearCost'] = MyVarDeviceData[0]['Readings']['PmYearCost']['Value'] + MyVarCurPrice
-				MyVarPmArray['PmTotalCost'] = MyVarDeviceData[0]['Readings']['PmTotalCost']['Value'] + MyVarCurPrice
+				MyVarPmArray['PmTodayCost'] = round(MyVarDeviceData[0]['Readings']['PmTodayCost']['Value'] + MyVarCurPrice,7)
+				MyVarPmArray['PmMonthCost'] = round(MyVarDeviceData[0]['Readings']['PmMonthCost']['Value'] + MyVarCurPrice,7)
+				MyVarPmArray['PmYearCost'] = round(MyVarDeviceData[0]['Readings']['PmYearCost']['Value'] + MyVarCurPrice,7)
+				MyVarPmArray['PmTotalCost'] = round(MyVarDeviceData[0]['Readings']['PmTotalCost']['Value'] + MyVarCurPrice,7)
 
 			self.ClassSys.AddReading(MyVarDeviceName, "PmDate", MyVarDate)
 			self.ClassSys.AddReading(MyVarDeviceName, "PmPower", MyVarCurPower)
