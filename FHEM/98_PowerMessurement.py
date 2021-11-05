@@ -193,6 +193,7 @@ class MyPowerMessurementClass:
 
 			if "PmInitial" not in MyVarDeviceData[0]['Readings']:
 				self.ClassSys.AddReading(MyVarDeviceName, "PmInitial", "True")
+				self.ClassSys.AddReading(MyVarDeviceName, "PmStart", MyVarDate)
 
 				MyVarPmArray['PmToday'] = 0
 				MyVarPmArray['PmYesterday'] = 0
