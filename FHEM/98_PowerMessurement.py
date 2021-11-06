@@ -134,9 +134,9 @@ class MyPowerMessurementClass:
 			MyVarDevices = self.ClassSys.FHEM.get(filters={'PmDevice': 'True'})
 			
 			for MyVarDevice in MyVarDevices:
-				try:
-					MyVarDeviceName = MyVarDevice[0]['Name']
-					MyVarDateReading = MyVarDevice[0]['Readings']['PmDate']['Value'].split(".")
+				if "PmDate" in MyVarDevice['Readings']:
+					MyVarDeviceName = MyVarDevice['Name']
+					MyVarDateReading = MyVarDevice['Readings']['PmDate']['Value'].split(".")
 					MyVarDateCurrent = MyVarDate.split(".")
 					MyVarDateUpdate = False
 
@@ -146,6 +146,7 @@ class MyPowerMessurementClass:
 						self.ClassSys.AddReading(MyVarDeviceName, "PmTodayCost", "0")
 						self.ClassSys.AddReading(MyVarDeviceName, "PmYesterdayCost", MyVarDevice[0]['Readings']['PmTodayCost']['Value'])
 						MyVarDateUpdate = True
+						print("New Day")
 
 					if MyVarDateReading[1] != MyVarDateCurrent[1]:
 						self.ClassSys.AddReading(MyVarDeviceName, "PmMonth", "0")
@@ -154,6 +155,7 @@ class MyPowerMessurementClass:
 						self.ClassSys.AddReading(MyVarDeviceName, "PmMonthCost", "0")
 						self.ClassSys.AddReading(MyVarDeviceName, "PmMonthLastCost", MyVarDevice[0]['Readings']['PmMonthCost']['Value'])
 						MyVarDateUpdate = True
+						print("New Month")
 
 					if MyVarDateReading[2] != MyVarDateCurrent[2]:
 						self.ClassSys.AddReading(MyVarDeviceName, "PmYear", "0")
@@ -162,11 +164,11 @@ class MyPowerMessurementClass:
 						self.ClassSys.AddReading(MyVarDeviceName, "PmYearCost", "0")
 						self.ClassSys.AddReading(MyVarDeviceName, "PmYearLastCost", MyVarDevice[0]['Readings']['PmYearCost']['Value'])
 						MyVarDateUpdate = True
+						print("New Year")
 
 					if MyVarDateUpdate == True:
 						self.ClassSys.AddReading(MyVarDeviceName, "PmDate", MyVarDate)
-				except:
-					pass
+						print("Update Date")
 
 		else:
 			MyVarDeviceData = self.ClassSys.FHEM.get(name=MyVarDeviceName)
@@ -198,6 +200,7 @@ class MyPowerMessurementClass:
 			if "PmInitial" not in MyVarDeviceData[0]['Readings']:
 				self.ClassSys.AddReading(MyVarDeviceName, "PmInitial", "True")
 				self.ClassSys.AddReading(MyVarDeviceName, "PmStart", MyVarDate)
+				self.ClassSys.AddReading(MyVarDeviceName, "PmDate", MyVarDate)
 
 				MyVarPmArray['PmToday'] = 0
 				MyVarPmArray['PmYesterday'] = 0
@@ -233,7 +236,6 @@ class MyPowerMessurementClass:
 				MyVarPmArray['PmYearCost'] = round(MyVarDeviceData[0]['Readings']['PmYearCost']['Value'] + MyVarCurPrice,7)
 				MyVarPmArray['PmTotalCost'] = round(MyVarDeviceData[0]['Readings']['PmTotalCost']['Value'] + MyVarCurPrice,7)
 
-			self.ClassSys.AddReading(MyVarDeviceName, "PmDate", MyVarDate)
 			self.ClassSys.AddReading(MyVarDeviceName, "PmPower", MyVarCurPower)
 
 			self.ClassSys.AddReading(MyVarDeviceName, "PmToday", MyVarPmArray['PmToday'])
