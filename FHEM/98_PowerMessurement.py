@@ -3,15 +3,15 @@
 #######################################################################################################################################
 #                          
 #  FHEM-MyPython                                                                                                    
-#   98_PowerMessurement.py - V0.2.5
-#    Date: 30.10.2021 - 12:47 Uhr
+#   98_PowerMessurement.py - V0.2.7
+#    Date: 06.11.2021 - 06:34 Uhr
 # 
 #  by TyroTechSoft.de
 #
 #######################################################################################################################################
 #
 # BackUp:						# Upload BackUp File to FTP Server
-#			"98_PowerMessurement.py IP Port Protocol User Pass Device"
+#			"98_PowerMessurement.py IP Port Protocol User Pass Device LogDevice"
 #
 ##############
 #
@@ -21,6 +21,7 @@
 # User			= User from FHEM
 # Pass			= Pass From FHEM
 # Device		= Device for response
+# LogDevice	= Device for DbLogging
 #
 #######################################################################################################################################
 
