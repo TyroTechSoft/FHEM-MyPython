@@ -147,7 +147,6 @@ class MyPowerMessurementClass:
 						self.ClassSys.AddReading(MyVarDeviceName, "PmTodayCost", "0")
 						self.ClassSys.AddReading(MyVarDeviceName, "PmYesterdayCost", MyVarDevice['Readings']['PmTodayCost']['Value'])
 						MyVarDateUpdate = True
-						print("New Day")
 
 					if MyVarDateReading[1] != MyVarDateCurrent[1]:
 						self.ClassSys.AddReading(MyVarDeviceName, "PmMonth", "0")
@@ -156,7 +155,6 @@ class MyPowerMessurementClass:
 						self.ClassSys.AddReading(MyVarDeviceName, "PmMonthCost", "0")
 						self.ClassSys.AddReading(MyVarDeviceName, "PmMonthLastCost", MyVarDevice['Readings']['PmMonthCost']['Value'])
 						MyVarDateUpdate = True
-						print("New Month")
 
 					if MyVarDateReading[2] != MyVarDateCurrent[2]:
 						self.ClassSys.AddReading(MyVarDeviceName, "PmYear", "0")
@@ -165,11 +163,9 @@ class MyPowerMessurementClass:
 						self.ClassSys.AddReading(MyVarDeviceName, "PmYearCost", "0")
 						self.ClassSys.AddReading(MyVarDeviceName, "PmYearLastCost", MyVarDevice['Readings']['PmYearCost']['Value'])
 						MyVarDateUpdate = True
-						print("New Year")
 
 					if MyVarDateUpdate == True:
 						self.ClassSys.AddReading(MyVarDeviceName, "PmDate", MyVarDate)
-						print("Update Date")
 
 		else:
 			MyVarDeviceData = self.ClassSys.FHEM.get(name=MyVarDeviceName)
