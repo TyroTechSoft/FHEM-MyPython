@@ -142,27 +142,27 @@ class MyPowerMessurementClass:
 
 					if MyVarDateReading[0] != MyVarDateCurrent[0]:
 						self.ClassSys.AddReading(MyVarDeviceName, "PmToday", "0")
-						self.ClassSys.AddReading(MyVarDeviceName, "PmYesterday", MyVarDevice[0]['Readings']['PmToday']['Value'])
+						self.ClassSys.AddReading(MyVarDeviceName, "PmYesterday", MyVarDevice['Readings']['PmToday']['Value'])
 						self.ClassSys.AddReading(MyVarDeviceName, "PmTodayCost", "0")
-						self.ClassSys.AddReading(MyVarDeviceName, "PmYesterdayCost", MyVarDevice[0]['Readings']['PmTodayCost']['Value'])
+						self.ClassSys.AddReading(MyVarDeviceName, "PmYesterdayCost", MyVarDevice['Readings']['PmTodayCost']['Value'])
 						MyVarDateUpdate = True
 						print("New Day")
 
 					if MyVarDateReading[1] != MyVarDateCurrent[1]:
 						self.ClassSys.AddReading(MyVarDeviceName, "PmMonth", "0")
-						self.ClassSys.AddReading(MyVarDeviceName, "PmMonthLast", MyVarDevice[0]['Readings']['PmMonth']['Value'])
+						self.ClassSys.AddReading(MyVarDeviceName, "PmMonthLast", MyVarDevice['Readings']['PmMonth']['Value'])
 				
 						self.ClassSys.AddReading(MyVarDeviceName, "PmMonthCost", "0")
-						self.ClassSys.AddReading(MyVarDeviceName, "PmMonthLastCost", MyVarDevice[0]['Readings']['PmMonthCost']['Value'])
+						self.ClassSys.AddReading(MyVarDeviceName, "PmMonthLastCost", MyVarDevice['Readings']['PmMonthCost']['Value'])
 						MyVarDateUpdate = True
 						print("New Month")
 
 					if MyVarDateReading[2] != MyVarDateCurrent[2]:
 						self.ClassSys.AddReading(MyVarDeviceName, "PmYear", "0")
-						self.ClassSys.AddReading(MyVarDeviceName, "PmYearLast", MyVarDevice[0]['Readings']['PmYear']['Value'])
+						self.ClassSys.AddReading(MyVarDeviceName, "PmYearLast", MyVarDevice['Readings']['PmYear']['Value'])
 				
 						self.ClassSys.AddReading(MyVarDeviceName, "PmYearCost", "0")
-						self.ClassSys.AddReading(MyVarDeviceName, "PmYearLastCost", MyVarDevice[0]['Readings']['PmYearCost']['Value'])
+						self.ClassSys.AddReading(MyVarDeviceName, "PmYearLastCost", MyVarDevice['Readings']['PmYearCost']['Value'])
 						MyVarDateUpdate = True
 						print("New Year")
 
