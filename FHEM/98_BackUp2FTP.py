@@ -150,6 +150,8 @@ class MyBack2FTPClass:
 
 ########### FTP Connect
 
+		print("FTP Connection")
+
 		try:
 			try:
 				self.FTP = FTP_TLS(host= self.Data['IP'], user= self.Data['User'], passwd= self.Data['Pass'])
@@ -165,8 +167,12 @@ class MyBack2FTPClass:
 			print("BackUp2FTP: FTP Error: Cannot connect!")
 			exit()
 
+		print("FTP Con Ende")
+
 
 ########### Upload File
+
+		print("Upload File")
 
 		MyVarFile = max(glob.iglob(self.Data['Dir']['FHEM'] + '/*'), key=os.path.getctime)
 		MyVarFileName = ntpath.basename(MyVarFile)
@@ -175,8 +181,12 @@ class MyBack2FTPClass:
 		with open(MyVarFileName, 'rb') as MyVarUpload:
 			self.FTP.storbinary('STOR ' + ntpath.basename(MyVarFileName), MyVarUpload)
 
+		print("Upload File Ende")
+
 
 ########### Delete old Files
+
+		print("Del Old Files")
 
 		while True:
 			MyVarBackUpListFHEM = os.listdir(self.Data['Dir']['FHEM'])
@@ -198,6 +208,8 @@ class MyBack2FTPClass:
 
 			self.ClassSys.AddReading(self.Device, 'state', 'Finish')
 			self.ClassSys.AddReading(self.Device, 'LastRun', self.DateTime)
+
+		print("Del Old Files Ende")
 
 
 ##############################################################
