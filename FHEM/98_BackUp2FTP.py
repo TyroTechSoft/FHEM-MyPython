@@ -203,11 +203,11 @@ class MyBack2FTPClass:
 				self.FTP.delete(min(MyVarBackUpListFTP))
 
 			
-			self.ClassSys.AddReading(self.Device, 'FilesFHEM', str(len(os.listdir(self.Data['Dir']['FHEM']))))
-			self.ClassSys.AddReading(self.Device, 'FilesFTP', str(len(self.FTP.nlst())-1))
+		self.ClassSys.AddReading(self.Device, 'FilesFHEM', str(len(os.listdir(self.Data['Dir']['FHEM']))))
+		self.ClassSys.AddReading(self.Device, 'FilesFTP', str(len(self.FTP.nlst())-1))
 
-			self.ClassSys.AddReading(self.Device, 'state', 'Finish')
-			self.ClassSys.AddReading(self.Device, 'LastRun', self.DateTime)
+		self.ClassSys.AddReading(self.Device, 'state', 'Finish')
+		self.ClassSys.AddReading(self.Device, 'LastRun', self.DateTime)
 
 		print("Del Old Files Ende")
 
