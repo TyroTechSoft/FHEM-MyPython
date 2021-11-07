@@ -16,6 +16,7 @@
 ##############
 #
 # IP				= IP from FHEM
+# IP				= IP from FHEM
 # Port			= Port from FHEM
 # Protocol	= Protocol from FHEM
 # User			= User from FHEM
@@ -244,6 +245,8 @@ class MyPowerMessurementClass:
 			self.ClassSys.AddReading(MyVarDeviceName, "PmMonthCost", MyVarPmArray['PmMonthCost'])
 			self.ClassSys.AddReading(MyVarDeviceName, "PmYearCost", MyVarPmArray['PmYearCost'])
 			self.ClassSys.AddReading(MyVarDeviceName, "PmTotalCost", MyVarPmArray['PmTotalCost'])
+
+			self.ClassSys.AddReading(MyVarDeviceName, "state", "Ok")
 
 
 	def TypTasmota(self, MyVarJsonSensor):
