@@ -198,6 +198,7 @@ class MyBack2FTPClass:
 
 		self.ClassSys.AddReading(self.Device, 'state', 'Finish')
 		self.ClassSys.AddReading(self.Device, 'LastRun', self.DateTime)
+		print("BackUp2FTP: BackUp wurde hochgelade!")
 
 
 ##############################################################
