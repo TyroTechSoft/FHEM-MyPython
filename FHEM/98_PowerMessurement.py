@@ -255,7 +255,7 @@ class MyPowerMessurementClass:
 		MyVarArray['Voltage'] = MyVarJsonSensor['Readings']['Sensor']['Value']['ENERGY']['Voltage']
 		MyVarArray['TotalOld'] = round(MyVarJsonSensor['Readings']['Sensor']['Value']['ENERGY']['Total'] * 1000)
 
-		if "PmTotalOld" not in MyVarJsonSensor['Readings'] or "PmTmtRestart" not in MyVarJsonSensor['Readings'] or MyVarJsonSensor['Readings']['PmTmtRestart']['Value'] == "True":
+		if "PmTotalOld" not in MyVarJsonSensor['Readings'] or "PmTmtRestart" not in MyVarJsonSensor['Readings'] or MyVarJsonSensor['Readings']['PmTmtRestart']['Value'] == "True" or "PmFhemStart" not in MyVarJsonSensor['Readings'] or MyVarJsonSensor['Readings']['PmFhemStart']['Value'] == "True":
 			MyVarArray['Count'] = 0
 		else:
 			MyVarArray['Count'] = MyVarArray['TotalOld'] - MyVarJsonSensor['Readings']['PmTotalOld']['Value']
