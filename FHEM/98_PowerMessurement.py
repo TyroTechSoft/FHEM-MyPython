@@ -180,6 +180,7 @@ class MyPowerMessurementClass:
 					MyVarPmData = self.TypTasmota(MyVarDeviceData[0])
 					self.ClassSys.AddReading(MyVarDeviceName, "PmTotalOld", MyVarPmData['TotalOld'])
 					self.ClassSys.AddReading(MyVarDeviceName, "PmTmtRestart", False)
+					self.ClassSys.AddReading(MyVarDeviceName, "PmFhemStart", False)
 				else:
 					self.ClassSys.AddReading(MyVarDeviceName, "state", "No Reading Named \"Sensor\"!")
 			elif "ESP-Easy" in MyVarDeviceData[0]['Attributes']['PmTyp']:
