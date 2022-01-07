@@ -203,7 +203,7 @@ class MyRepetierServerClass:
 			if MyVarDeviceServer == True:
 				pass
 			else:
-				pass
+				self.ClassSys.SetCMD("attr " + MyVarDevice + " userattr RS-Device:Printer RS-DummyPowerName RS-DummyPowerValue RS-DummySwitchName RS-DummySwitchState")
 
 		MyVarCheckID = 5
 		if MyVarVerionID < MyVarCheckID and self.ClassSys.VersionID >= MyVarCheckID:
@@ -388,54 +388,57 @@ class MyRepetierServerClass:
 			MyVarPrinters = json.loads(_MyVarRequest.read().decode())
 			
 			for MyVarPrinterKey in MyVarPrinters:
-				MyVarDevice = self.PrinterList[MyVarPrinterKey]
-				MyVarPrinter = MyVarPrinters[MyVarPrinterKey]
+				try:
+					MyVarDevice = self.PrinterList[MyVarPrinterKey]
+					MyVarPrinter = MyVarPrinters[MyVarPrinterKey]
 				
-				self.ClassSys.AddReading(MyVarDevice, 'ExtruderActiv', MyVarPrinter['activeExtruder'])
-				self.ClassSys.AddReading(MyVarDevice, 'DoorOpen', MyVarPrinter['doorOpen'])
-				self.ClassSys.AddReading(MyVarDevice, 'FanFilter', MyVarPrinter['filterFan'])
-				self.ClassSys.AddReading(MyVarDevice, 'Firmware', MyVarPrinter['firmware'])
-				self.ClassSys.AddReading(MyVarDevice, 'FirmwareURL', MyVarPrinter['firmwareURL'])
-				self.ClassSys.AddReading(MyVarDevice, 'FlowMultiply', MyVarPrinter['flowMultiply'])
-				self.ClassSys.AddReading(MyVarDevice, 'HasXHome', MyVarPrinter['hasXHome'])
-				self.ClassSys.AddReading(MyVarDevice, 'HasYHome', MyVarPrinter['hasYHome'])
-				self.ClassSys.AddReading(MyVarDevice, 'HasZHome', MyVarPrinter['hasZHome'])
-				self.ClassSys.AddReading(MyVarDevice, 'Layer', MyVarPrinter['layer'])
-				self.ClassSys.AddReading(MyVarDevice, 'Lights', MyVarPrinter['lights'])
-				self.ClassSys.AddReading(MyVarDevice, 'ExtruderCount', MyVarPrinter['numExtruder'])
-				self.ClassSys.AddReading(MyVarDevice, 'PowerOn', MyVarPrinter['powerOn'])
-				self.ClassSys.AddReading(MyVarDevice, 'Record', MyVarPrinter['rec'])
-				self.ClassSys.AddReading(MyVarDevice, 'SDCardMounted', MyVarPrinter['sdcardMounted'])
-				self.ClassSys.AddReading(MyVarDevice, 'ShutdownAfterPrint', MyVarPrinter['shutdownAfterPrint'])
-				self.ClassSys.AddReading(MyVarDevice, 'SpeedMultiply', MyVarPrinter['speedMultiply'])
-				self.ClassSys.AddReading(MyVarDevice, 'Volumetric', MyVarPrinter['volumetric'])
-				self.ClassSys.AddReading(MyVarDevice, 'X', round(MyVarPrinter['x'], 3))
-				self.ClassSys.AddReading(MyVarDevice, 'Y', round(MyVarPrinter['y'], 3))
-				self.ClassSys.AddReading(MyVarDevice, 'Z', round(MyVarPrinter['z'], 3))
+					self.ClassSys.AddReading(MyVarDevice, 'ExtruderActiv', MyVarPrinter['activeExtruder'])
+					self.ClassSys.AddReading(MyVarDevice, 'DoorOpen', MyVarPrinter['doorOpen'])
+					self.ClassSys.AddReading(MyVarDevice, 'FanFilter', MyVarPrinter['filterFan'])
+					self.ClassSys.AddReading(MyVarDevice, 'Firmware', MyVarPrinter['firmware'])
+					self.ClassSys.AddReading(MyVarDevice, 'FirmwareURL', MyVarPrinter['firmwareURL'])
+					self.ClassSys.AddReading(MyVarDevice, 'FlowMultiply', MyVarPrinter['flowMultiply'])
+					self.ClassSys.AddReading(MyVarDevice, 'HasXHome', MyVarPrinter['hasXHome'])
+					self.ClassSys.AddReading(MyVarDevice, 'HasYHome', MyVarPrinter['hasYHome'])
+					self.ClassSys.AddReading(MyVarDevice, 'HasZHome', MyVarPrinter['hasZHome'])
+					self.ClassSys.AddReading(MyVarDevice, 'Layer', MyVarPrinter['layer'])
+					self.ClassSys.AddReading(MyVarDevice, 'Lights', MyVarPrinter['lights'])
+					self.ClassSys.AddReading(MyVarDevice, 'ExtruderCount', MyVarPrinter['numExtruder'])
+					self.ClassSys.AddReading(MyVarDevice, 'PowerOn', MyVarPrinter['powerOn'])
+					self.ClassSys.AddReading(MyVarDevice, 'Record', MyVarPrinter['rec'])
+					self.ClassSys.AddReading(MyVarDevice, 'SDCardMounted', MyVarPrinter['sdcardMounted'])
+					self.ClassSys.AddReading(MyVarDevice, 'ShutdownAfterPrint', MyVarPrinter['shutdownAfterPrint'])
+					self.ClassSys.AddReading(MyVarDevice, 'SpeedMultiply', MyVarPrinter['speedMultiply'])
+					self.ClassSys.AddReading(MyVarDevice, 'Volumetric', MyVarPrinter['volumetric'])
+					self.ClassSys.AddReading(MyVarDevice, 'X', round(MyVarPrinter['x'], 3))
+					self.ClassSys.AddReading(MyVarDevice, 'Y', round(MyVarPrinter['y'], 3))
+					self.ClassSys.AddReading(MyVarDevice, 'Z', round(MyVarPrinter['z'], 3))
 
-				MyVarCount = 0
-				for MyVarKey in MyVarPrinter['extruder']:
-					MyVarKeyStr = str(MyVarCount)
-					self.ClassSys.AddReading(MyVarDevice, 'E' + MyVarKeyStr + 'Error', MyVarPrinter['extruder'][MyVarCount]['error'])
-					self.ClassSys.AddReading(MyVarDevice, 'E' + MyVarKeyStr + 'TempGet', round(MyVarPrinter['extruder'][MyVarCount]['tempRead'], 2))
-					self.ClassSys.AddReading(MyVarDevice, 'E' + MyVarKeyStr + 'TempSet', round(MyVarPrinter['extruder'][MyVarCount]['tempSet'], 2))
-					MyVarCount += 1
+					MyVarCount = 0
+					for MyVarKey in MyVarPrinter['extruder']:
+						MyVarKeyStr = str(MyVarCount)
+						self.ClassSys.AddReading(MyVarDevice, 'E' + MyVarKeyStr + 'Error', MyVarPrinter['extruder'][MyVarCount]['error'])
+						self.ClassSys.AddReading(MyVarDevice, 'E' + MyVarKeyStr + 'TempGet', round(MyVarPrinter['extruder'][MyVarCount]['tempRead'], 2))
+						self.ClassSys.AddReading(MyVarDevice, 'E' + MyVarKeyStr + 'TempSet', round(MyVarPrinter['extruder'][MyVarCount]['tempSet'], 2))
+						MyVarCount += 1
 
-				MyVarCount = 0
-				for MyVarKey in str(len(MyVarPrinter['heatedBeds'])):
-					MyVarKeyStr = str(MyVarCount)
-					self.ClassSys.AddReading(MyVarDevice, 'B' + MyVarKeyStr + 'Error', MyVarPrinter['heatedBeds'][MyVarCount]['error'])
-					self.ClassSys.AddReading(MyVarDevice, 'B' + MyVarKeyStr + 'TempGet', round(MyVarPrinter['heatedBeds'][MyVarCount]['tempRead'], 2))
-					self.ClassSys.AddReading(MyVarDevice, 'B' + MyVarKeyStr + 'TempSet', round(MyVarPrinter['heatedBeds'][MyVarCount]['tempSet'], 2))
-					self.ClassSys.AddReading(MyVarDevice, 'B' + MyVarKeyStr + 'OutPut', round(MyVarPrinter['heatedBeds'][MyVarCount]['output'], 2))
-					MyVarCount += 1
+					MyVarCount = 0
+					for MyVarKey in str(len(MyVarPrinter['heatedBeds'])):
+						MyVarKeyStr = str(MyVarCount)
+						self.ClassSys.AddReading(MyVarDevice, 'B' + MyVarKeyStr + 'Error', MyVarPrinter['heatedBeds'][MyVarCount]['error'])
+						self.ClassSys.AddReading(MyVarDevice, 'B' + MyVarKeyStr + 'TempGet', round(MyVarPrinter['heatedBeds'][MyVarCount]['tempRead'], 2))
+						self.ClassSys.AddReading(MyVarDevice, 'B' + MyVarKeyStr + 'TempSet', round(MyVarPrinter['heatedBeds'][MyVarCount]['tempSet'], 2))
+						self.ClassSys.AddReading(MyVarDevice, 'B' + MyVarKeyStr + 'OutPut', round(MyVarPrinter['heatedBeds'][MyVarCount]['output'], 2))
+						MyVarCount += 1
 				
-				MyVarCount = 0
-				for MyVarKey in str(len(MyVarPrinter['fans'])):
-					MyVarKeyStr = str(MyVarCount)
-					self.ClassSys.AddReading(MyVarDevice, 'F' + MyVarKeyStr + 'Activ', MyVarPrinter['fans'][MyVarCount]['on'])
-					self.ClassSys.AddReading(MyVarDevice, 'F' + MyVarKeyStr + 'PWM', MyVarPrinter['fans'][MyVarCount]['voltage'])
-					MyVarCount += 1
+					MyVarCount = 0
+					for MyVarKey in str(len(MyVarPrinter['fans'])):
+						MyVarKeyStr = str(MyVarCount)
+						self.ClassSys.AddReading(MyVarDevice, 'F' + MyVarKeyStr + 'Activ', MyVarPrinter['fans'][MyVarCount]['on'])
+						self.ClassSys.AddReading(MyVarDevice, 'F' + MyVarKeyStr + 'PWM', MyVarPrinter['fans'][MyVarCount]['voltage'])
+						MyVarCount += 1
+				except:
+					pass
 
 
 ##############################################################
