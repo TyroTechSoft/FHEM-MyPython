@@ -4,7 +4,7 @@
 #                          
 #  FHEM-MyPython                                                                                                    
 #   98_PowerMessurement.py - V0.2.9
-#    Date: 11.02.2023 - 17:31 Uhr
+#    Date: 11.02.2023 - 17:40 Uhr
 # 
 #  by TyroTechSoft.de
 #
