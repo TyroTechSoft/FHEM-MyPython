@@ -11,18 +11,20 @@
 #######################################################################################################################################
 #
 # BackUp:						# Upload BackUp File to FTP Server
-#			"98_PowerMessurement.py IP Port Protocol User Pass Device LogDevice"
+#		>> Without Price
+#			"98_PowerMessurement.py IP Port Protocol User Pass Device"
+#		>> With Price
+#			"98_PowerMessurement.py IP Port Protocol User Pass Device PriceDevice"
 #
 ##############
 #
-# IP				= IP from FHEM
-# IP				= IP from FHEM
+# IP			= IP from FHEM
 # Port			= Port from FHEM
-# Protocol	= Protocol from FHEM
+# Protocol		= Protocol from FHEM
 # User			= User from FHEM
 # Pass			= Pass From FHEM
 # Device		= Device for response
-# LogDevice	= Device for DbLogging
+# PriceDevice	= Device for Price (Optional)
 #
 #######################################################################################################################################
 
@@ -143,25 +145,32 @@ class MyPowerMessurementClass:
 					MyVarDateUpdate = False
 
 					if MyVarDateReading[0] != MyVarDateCurrent[0]:
+						self.ClassSys.AddReading(MyVarDeviceName, "PmToday", MyVarDevice['Readings']['PmToday']['Value'])
 						self.ClassSys.AddReading(MyVarDeviceName, "PmToday", "0")
 						self.ClassSys.AddReading(MyVarDeviceName, "PmYesterday", MyVarDevice['Readings']['PmToday']['Value'])
+						
+						self.ClassSys.AddReading(MyVarDeviceName, "PmTodayCost", MyVarDevice['Readings']['PmTodayCost']['Value'])
 						self.ClassSys.AddReading(MyVarDeviceName, "PmTodayCost", "0")
 						self.ClassSys.AddReading(MyVarDeviceName, "PmYesterdayCost", MyVarDevice['Readings']['PmTodayCost']['Value'])
 						MyVarDateUpdate = True
 
 					if MyVarDateReading[1] != MyVarDateCurrent[1]:
+						self.ClassSys.AddReading(MyVarDeviceName, "PmMonth", MyVarDevice['Readings']['PmMonth']['Value'])
 						self.ClassSys.AddReading(MyVarDeviceName, "PmMonth", "0")
 						self.ClassSys.AddReading(MyVarDeviceName, "PmMonthLast", MyVarDevice['Readings']['PmMonth']['Value'])
 				
+						self.ClassSys.AddReading(MyVarDeviceName, "PmMonthCost", MyVarDevice['Readings']['PmMonthCost']['Value'])
 						self.ClassSys.AddReading(MyVarDeviceName, "PmMonthCost", "0")
 						self.ClassSys.AddReading(MyVarDeviceName, "PmMonthLastCost", MyVarDevice['Readings']['PmMonthCost']['Value'])
 						MyVarDateUpdate = True
 
 					if MyVarDateReading[2] != MyVarDateCurrent[2]:
+						self.ClassSys.AddReading(MyVarDeviceName, "PmYear", MyVarDevice['Readings']['PmYear']['Value'])
 						self.ClassSys.AddReading(MyVarDeviceName, "PmYear", "0")
 						self.ClassSys.AddReading(MyVarDeviceName, "PmYearLast", MyVarDevice['Readings']['PmYear']['Value'])
 				
 						self.ClassSys.AddReading(MyVarDeviceName, "PmYearCost", "0")
+						self.ClassSys.AddReading(MyVarDeviceName, "PmYearCost", MyVarDevice['Readings']['PmYearCost']['Value'])
 						self.ClassSys.AddReading(MyVarDeviceName, "PmYearLastCost", MyVarDevice['Readings']['PmYearCost']['Value'])
 						MyVarDateUpdate = True
 
