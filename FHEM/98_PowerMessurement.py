@@ -3,8 +3,8 @@
 #######################################################################################################################################
 #                          
 #  FHEM-MyPython                                                                                                    
-#   98_PowerMessurement.py - V0.2.9
-#    Date: 11.02.2023 - 17:40 Uhr
+#   98_PowerMessurement.py - V0.2.9_1
+#    Date: 12.02.2023 - 06:51 Uhr
 # 
 #  by TyroTechSoft.de
 #
@@ -145,37 +145,38 @@ class MyPowerMessurementClass:
 					MyVarDateUpdate = False
 
 					if MyVarDateReading[0] != MyVarDateCurrent[0]:
-						self.ClassSys.AddReading(MyVarDeviceName, "PmToday", MyVarDevice['Readings']['PmToday']['Value'])
+						self.ClassSys.SetReading(MyVarDeviceName, "PmToday", MyVarDevice['Readings']['PmToday']['Value'])
 						self.ClassSys.AddReading(MyVarDeviceName, "PmToday", "0")
 						self.ClassSys.AddReading(MyVarDeviceName, "PmYesterday", MyVarDevice['Readings']['PmToday']['Value'])
 						
-						self.ClassSys.AddReading(MyVarDeviceName, "PmTodayCost", MyVarDevice['Readings']['PmTodayCost']['Value'])
+						self.ClassSys.SetReading(MyVarDeviceName, "PmTodayCost", MyVarDevice['Readings']['PmTodayCost']['Value'])
 						self.ClassSys.AddReading(MyVarDeviceName, "PmTodayCost", "0")
 						self.ClassSys.AddReading(MyVarDeviceName, "PmYesterdayCost", MyVarDevice['Readings']['PmTodayCost']['Value'])
 						MyVarDateUpdate = True
 
 					if MyVarDateReading[1] != MyVarDateCurrent[1]:
-						self.ClassSys.AddReading(MyVarDeviceName, "PmMonth", MyVarDevice['Readings']['PmMonth']['Value'])
+						self.ClassSys.SetReading(MyVarDeviceName, "PmMonth", MyVarDevice['Readings']['PmMonth']['Value'])
 						self.ClassSys.AddReading(MyVarDeviceName, "PmMonth", "0")
 						self.ClassSys.AddReading(MyVarDeviceName, "PmMonthLast", MyVarDevice['Readings']['PmMonth']['Value'])
 				
-						self.ClassSys.AddReading(MyVarDeviceName, "PmMonthCost", MyVarDevice['Readings']['PmMonthCost']['Value'])
+						self.ClassSys.SetReading(MyVarDeviceName, "PmMonthCost", MyVarDevice['Readings']['PmMonthCost']['Value'])
 						self.ClassSys.AddReading(MyVarDeviceName, "PmMonthCost", "0")
 						self.ClassSys.AddReading(MyVarDeviceName, "PmMonthLastCost", MyVarDevice['Readings']['PmMonthCost']['Value'])
 						MyVarDateUpdate = True
 
 					if MyVarDateReading[2] != MyVarDateCurrent[2]:
-						self.ClassSys.AddReading(MyVarDeviceName, "PmYear", MyVarDevice['Readings']['PmYear']['Value'])
+						self.ClassSys.SetReading(MyVarDeviceName, "PmYear", MyVarDevice['Readings']['PmYear']['Value'])
 						self.ClassSys.AddReading(MyVarDeviceName, "PmYear", "0")
 						self.ClassSys.AddReading(MyVarDeviceName, "PmYearLast", MyVarDevice['Readings']['PmYear']['Value'])
 				
-						self.ClassSys.AddReading(MyVarDeviceName, "PmYearCost", "0")
+						self.ClassSys.SetReading(MyVarDeviceName, "PmYearCost", "0")
 						self.ClassSys.AddReading(MyVarDeviceName, "PmYearCost", MyVarDevice['Readings']['PmYearCost']['Value'])
 						self.ClassSys.AddReading(MyVarDeviceName, "PmYearLastCost", MyVarDevice['Readings']['PmYearCost']['Value'])
 						MyVarDateUpdate = True
 
 					if MyVarDateUpdate == True:
 						self.ClassSys.AddReading(MyVarDeviceName, "PmDate", MyVarDate)
+						time.sleep(10)
 
 		else:
 			MyVarDeviceData = self.ClassSys.FHEM.get(name=MyVarDeviceName)
