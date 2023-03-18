@@ -3,8 +3,8 @@
 #######################################################################################################################################
 #                          
 #  FHEM-MyPython                                                                                                    
-#   98_BackUp2FTP.py - V0.1.5
-#    Date: 07.11.2021 - 11:56 Uhr
+#   98_BackUp2FTP.py - V0.1.7
+#    Date: 02.03.2023 - 19:33 Uhr
 # 
 #  by TyroTechSoft.de
 #
@@ -56,6 +56,10 @@ try:
 		'User': MyVarSysArgs[3],
 		'Pass': MyVarSysArgs[4],
 		'Device': MyVarSysArgs[5]}
+
+	MyVarSysData['VersionInfo'] = {
+		'Version': "V0.1.7",
+		'Date': "02.03.2023 - 19:33 Uhr"}
 
 except:
 	print("BackUp2FTP: No Args given!")
@@ -118,16 +122,42 @@ class MyClassLog:
 
 
 ##############################################################
+### Size Calculator Function
+
+def MyFunctionSizeCalculator(MyVarValue):
+	MyVarB = float(MyVarValue)
+	MyVarKB = float(1024)
+	MyVarMB = float(MyVarKB ** 2)
+	MyVarGB = float(MyVarKB ** 3)
+	MyVarTB = float(MyVarKB ** 4)
+
+	if MyVarB < MyVarKB:
+		return '{0} {1}'.format(MyVarB,'Bytes' if 0 == MyVarB > 1 else 'Byte')
+	elif MyVarKB <= MyVarB < MyVarMB:
+		return '{0:.2f} KB'.format(MyVarB / MyVarKB)
+	elif MyVarMB <= MyVarB < MyVarGB:
+		return '{0:.2f} MB'.format(MyVarB / MyVarMB)
+	elif MyVarGB <= MyVarB < MyVarTB:
+		return '{0:.2f} GB'.format(MyVarB / MyVarGB)
+	elif MyVarTB <= MyVarB:
+		return '{0:.2f} TB'.format(MyVarB / MyVarTB)
+
+
+##############################################################
 ### Back2FTP Class
 
-class MyBack2FTPClass:
+class MyBackUp2FTPClass:
 	def __init__(self, MyVarSysData):
 		self.ClassSys = MyClassSys(MyVarSysData)
 		self.DateTime = str(datetime.now().strftime("%d.%m.%Y %H:%M"))
 		self.Device = MyVarSysData['Device']
+		self.FTP_TLS = False
+		self.FTP_Resp = "NONE"
 		MyVarDeviceData = self.ClassSys.FHEM.get(name=self.Device)
 
 		self.ClassSys.SetReading(self.Device, 'state', 'Running')
+		self.ClassSys.SetReading(self.Device, 'Version', MyVarSysData['VersionInfo']['Version'])
+		self.ClassSys.SetReading(self.Device, 'VersionDate', MyVarSysData['VersionInfo']['Date'])
 
 		self.Data = {
 		'IP': MyVarDeviceData[0]['Attributes']['BU-HostFTP'],
@@ -144,7 +174,7 @@ class MyBack2FTPClass:
 			os.chdir(self.Data['Dir']['FHEM'])
 		except:
 			self.ClassSys.SetReading(self.Device, 'state', 'FHEM Error: Cannot find or access FHEM Dir!')
-			print("FHEM Error: Cannot find or access FHEM Dir!")
+			print("BackUp2FTP: FHEM Error: Cannot find or access FHEM Dir!")
 			exit()
 
 
@@ -152,14 +182,18 @@ class MyBack2FTPClass:
 
 		try:
 			try:
-				self.FTP = FTP_TLS(host= self.Data['IP'], user= self.Data['User'], passwd= self.Data['Pass'])
-				self.FTP.ssl_version = ssl.PROTOCOL_SSLv23
+				self.FTP = FTP_TLS(timeout=10)
+				self.FTP.connect(self.Data['IP'])
+				self.FTP.login(user=self.Data['User'], passwd=self.Data['Pass'])
+				self.FTP.prot_p() 
+#				self.FTP.retrlines('LIST')
+				self.ClassSys.AddReading(self.Device, 'FTP-Protocol', 'FTP_TSL')
 			except:
 				self.FTP = FTP(host= self.Data['IP'], user= self.Data['User'], passwd= self.Data['Pass'])
+				self.ClassSys.AddReading(self.Device, 'FTP-Protocol', 'FTP')
 
-			self.FTP.cwd(self.Data['Dir']['FTP'])
 			self.FTP.encoding = "utf-8"
-
+			self.FTP.cwd(self.Data['Dir']['FTP'])
 		except:
 			self.ClassSys.SetReading(self.Device, 'state', 'FTP Error: Cannot connect!')
 			print("BackUp2FTP: FTP Error: Cannot connect!")
@@ -168,12 +202,25 @@ class MyBack2FTPClass:
 
 ########### Upload File
 
-		MyVarFile = max(glob.iglob(self.Data['Dir']['FHEM'] + '/*'), key=os.path.getctime)
-		MyVarFileName = ntpath.basename(MyVarFile)
-		self.ClassSys.SetReading(self.Device, 'FileName', MyVarFileName)
+		try:
+			MyVarFile = max(glob.iglob(self.Data['Dir']['FHEM'] + '/*'), key=os.path.getctime)
+			MyVarFileName = ntpath.basename(MyVarFile)
+			self.ClassSys.SetReading(self.Device, 'FileName', MyVarFileName)
+			self.ClassSys.SetReading(self.Device, 'FileSize', MyFunctionSizeCalculator(os.path.getsize(MyVarFileName)))
 
-		with open(MyVarFileName, 'rb') as MyVarUpload:
-			self.FTP.storbinary('STOR ' + ntpath.basename(MyVarFileName), MyVarUpload)
+			try:
+				with open(MyVarFileName, 'rb') as MyVarUpload:
+					self.FTP.storbinary(f'STOR {MyVarFileName}', MyVarUpload)
+				self.ClassSys.AddReading(self.Device, 'FTP-Mode', 'Binary')
+			except:
+				with open(MyVarFileName, 'rb') as MyVarUpload:
+					self.FTP.storlines(f'STOR {MyVarFileName}', MyVarUpload)
+				self.ClassSys.AddReading(self.Device, 'FTP-Mode', 'ASCII')
+
+		except:
+			self.ClassSys.SetReading(self.Device, 'state', 'FTP Error: Cannot Upload File!')
+			print("BackUp2FTP: FTP Error: Cannot Upload File!")
+			exit()
 
 
 ########### Delete old Files
@@ -188,9 +235,20 @@ class MyBack2FTPClass:
 
 			MyVarBackUpListFTP = self.FTP.nlst()
 
-			while len(MyVarBackUpListFTP) > self.Data['MaxFile']['FTP']+1:
-				del MyVarBackUpListFTP[0]
-				self.FTP.delete(min(MyVarBackUpListFTP))
+			try:
+				MyVarBackUpListFTP.remove("..")
+			except:
+				pass
+
+			try:
+				MyVarBackUpListFTP.remove(".")
+			except:
+				pass
+
+			while len(MyVarBackUpListFTP) > self.Data['MaxFile']['FTP']:
+				MyVarDelFileFTP = min(MyVarBackUpListFTP)
+				MyVarBackUpListFTP.remove(MyVarDelFileFTP)
+				self.FTP.delete(MyVarDelFileFTP)
 
 			
 		self.ClassSys.AddReading(self.Device, 'FilesFHEM', str(len(os.listdir(self.Data['Dir']['FHEM']))))
@@ -201,8 +259,13 @@ class MyBack2FTPClass:
 		print("BackUp2FTP: BackUp wurde hochgelade!")
 
 
+########### Clode Connection
+
+		self.FTP.quit()
+
+
 ##############################################################
 ### Program
 
-MyVarRun = MyBack2FTPClass(MyVarSysData)
+MyVarRun = MyBackUp2FTPClass(MyVarSysData)
 MyVarRun.ClassSys.ExecuteReadings()
