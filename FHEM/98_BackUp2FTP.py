@@ -233,30 +233,39 @@ class MyBackUp2FTPClass:
 			else:
 				break
 
-			MyVarBackUpListFTP = self.FTP.nlst()
 
-			try:
-				MyVarBackUpListFTP.remove("..")
-			except:
-				pass
+		MyVarBackUpListFTP = [i for i in self.FTP.nlst() if i.startswith("FHEM")]
 
-			try:
-				MyVarBackUpListFTP.remove(".")
-			except:
-				pass
+#		MyVarBackUpListFTP = self.FTP.nlst()
+		
+#
+#		try:
+#			MyVarBackUpListFTP.remove("..")
+#		except:
+#			pass
 
-			while len(MyVarBackUpListFTP) > self.Data['MaxFile']['FTP']:
-				MyVarDelFileFTP = min(MyVarBackUpListFTP)
-				MyVarBackUpListFTP.remove(MyVarDelFileFTP)
-				self.FTP.delete(MyVarDelFileFTP)
+#		try:
+#			MyVarBackUpListFTP.remove(".")
+#		except:
+#			pass
+
+
+#		print(MyVarBackUpListFTP)
+
+		while len(MyVarBackUpListFTP) > self.Data['MaxFile']['FTP']:
+			MyVarDelFileFTP = min(MyVarBackUpListFTP)
+#			print(MyVarDelFileFTP)
+			MyVarBackUpListFTP.remove(MyVarDelFileFTP)
+			self.FTP.delete(MyVarDelFileFTP)
 
 			
 		self.ClassSys.AddReading(self.Device, 'FilesFHEM', str(len(os.listdir(self.Data['Dir']['FHEM']))))
-		self.ClassSys.AddReading(self.Device, 'FilesFTP', str(len(self.FTP.nlst())-1))
+#		self.ClassSys.AddReading(self.Device, 'FilesFTP', str(len(self.FTP.nlst())-1))
+		self.ClassSys.AddReading(self.Device, 'FilesFTP', str(len([i for i in self.FTP.nlst() if i.startswith("FHEM")])))
 
 		self.ClassSys.AddReading(self.Device, 'state', 'Finish')
 		self.ClassSys.AddReading(self.Device, 'LastRun', self.DateTime)
-		print("BackUp2FTP: BackUp wurde hochgelade!")
+		print("BackUp2FTP: BackUp wurde hochgeladen!")
 
 
 ########### Clode Connection
