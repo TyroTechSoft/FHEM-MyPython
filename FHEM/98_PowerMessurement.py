@@ -246,15 +246,20 @@ class MyPowerMessurementClass:
 				self.ClassSys.AddReading(MyVarDeviceName, "PmMonthLastCost", MyVarPmArray['PmMonthLastCost'])
 				self.ClassSys.AddReading(MyVarDeviceName, "PmYearLastCost", MyVarPmArray['PmYearLastCost'])
 			else:
-				MyVarPmArray['PmToday'] = round(MyVarDeviceData[0]['Readings']['PmToday']['Value'] + MyVarCurCount,7)
-				MyVarPmArray['PmMonth'] = round(MyVarDeviceData[0]['Readings']['PmMonth']['Value'] + MyVarCurCount,7)
-				MyVarPmArray['PmYear'] = round(MyVarDeviceData[0]['Readings']['PmYear']['Value'] + MyVarCurCount,7)
-				MyVarPmArray['PmTotal'] = round(MyVarDeviceData[0]['Readings']['PmTotal']['Value'] + MyVarCurCount,7)
+				MyVarxPmToday = float(MyVarDeviceData[0]['Readings']['PmToday']['Value']) + MyVarCurCount
+				MyVarxPmMonth = float(MyVarDeviceData[0]['Readings']['PmMonth']['Value']) + MyVarCurCount
+				MyVarxPmYear = float(MyVarDeviceData[0]['Readings']['PmYear']['Value']) + MyVarCurCount
+				MyVarxPmTotal = float(MyVarDeviceData[0]['Readings']['PmTotal']['Value']) + MyVarCurCount
 
-				MyVarxPmTodayCost = float(MyVarDeviceData[0]['Readings']['PmTodayCost']['Value'] + MyVarCurPrice)
-				MyVarxPmMonthCost = float(MyVarDeviceData[0]['Readings']['PmMonthCost']['Value'] + MyVarCurPrice)
-				MyVarxPmYearCost = float(MyVarDeviceData[0]['Readings']['PmYearCost']['Value'] + MyVarCurPrice)
-				MyVarxPmTotalCost = float(MyVarDeviceData[0]['Readings']['PmTotalCost']['Value'] + MyVarCurPrice)
+				MyVarPmArray['PmToday'] = f"{MyVarxPmToday:.7f}"
+				MyVarPmArray['PmMonth'] = f"{MyVarxPmMonth:.7f}"
+				MyVarPmArray['PmYear'] = f"{MyVarxPmYear:.7f}"
+				MyVarPmArray['PmTotal'] = f"{MyVarxPmTotal:.7f}"
+
+				MyVarxPmTodayCost = float(MyVarDeviceData[0]['Readings']['PmTodayCost']['Value']) + MyVarCurPrice
+				MyVarxPmMonthCost = float(MyVarDeviceData[0]['Readings']['PmMonthCost']['Value']) + MyVarCurPrice
+				MyVarxPmYearCost = float(MyVarDeviceData[0]['Readings']['PmYearCost']['Value']) + MyVarCurPrice
+				MyVarxPmTotalCost = float(MyVarDeviceData[0]['Readings']['PmTotalCost']['Value']) + MyVarCurPrice
 
 				MyVarPmArray['PmTodayCost'] = f"{MyVarxPmTodayCost:.7f}"
 				MyVarPmArray['PmMonthCost'] = f"{MyVarxPmMonthCost:.7f}"
@@ -312,10 +317,10 @@ class MyPowerMessurementClass:
 		MyVarArray['Power'] = 0
 		MyVarArray['SensorOld'] = MyVarReadings['Sensor']['Value']
 
-		if "Sensor" not in MyVarReadings and "Power" not in MyVarReadings:
+		if "Sensor" not in MyVarReadings and "Power" not in MyVarReadings and MyVarReadings['Sensor']['Value'] < MyVarReadings['Sensor']['Value']:
 			MyVarArray['Error'] = True
 		else:
-			if "PmSensorOld" not in MyVarReadings:
+			if "PmSensorOld" not in MyVarReadings or MyVarReadings['PmSensorOld']['Value'] > MyVarReadings['Sensor']['Value'] or "PmShlyRestart" not in MyVarReadings or MyVarReadings['PmShlyRestart']['Value'] == "true" or "PmFhemStart" not in MyVarReadings or MyVarReadings['PmFhemStart']['Value'] == "true":
 				MyVarArray['Count'] = 0
 			else:
 				MyVarArray['Count'] = (MyVarReadings['Sensor']['Value'] - MyVarReadings['PmSensorOld']['Value']) / 60
