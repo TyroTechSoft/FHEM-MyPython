@@ -3,8 +3,8 @@
 #######################################################################################################################################
 #                          
 #  FHEM-MyPython                                                                                                    
-#   98_BackUp2FTP.py - V0.1.8
-#    Date: 18.03.2023 - 10:24 Uhr
+#   98_BackUp2FTP.py - V0.1.9_5
+#    Date: 19.05.2023 - 08:19 Uhr
 # 
 #  by TyroTechSoft.de
 #
@@ -58,8 +58,8 @@ try:
 		'Device': MyVarSysArgs[5]}
 
 	MyVarSysData['VersionInfo'] = {
-		'Version': "V0.1.8",
-		'Date': "18.03.2023 - 10:24 Uhr"}
+		'Version': "V0.1.9_5",
+		'Date': "19.05.2023 - 08:19 Uhr"}
 
 except:
 	print("BackUp2FTP: No Args given!")
