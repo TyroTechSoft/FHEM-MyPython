@@ -203,7 +203,7 @@ class MyPowerMessurementClass:
 				del MyVarPmData['Error']
 
 			elif "Shelly" in MyVarDeviceData[0]['Attributes']['PmTyp']:
-				MyVarPmData = self.TypShelly(MyVarDeviceData[0]['Readings'])
+				MyVarPmData = self.TypShelly(MyVarDeviceData[0]['Readings'], MyVarDeviceName)
 				self.ClassSys.AddReading(MyVarDeviceName, "PmSensorOld", MyVarPmData['SensorOld'])
 				if MyVarPmData['Error'] == True:
 					self.ClassSys.AddReading(MyVarDeviceName, "State", "The Reading \"Sensor\" or \"Power\" not exist!")
@@ -251,20 +251,20 @@ class MyPowerMessurementClass:
 				MyVarxPmYear = float(MyVarDeviceData[0]['Readings']['PmYear']['Value']) + MyVarCurCount
 				MyVarxPmTotal = float(MyVarDeviceData[0]['Readings']['PmTotal']['Value']) + MyVarCurCount
 
-				MyVarPmArray['PmToday'] = f"{MyVarxPmToday:.7f}"
-				MyVarPmArray['PmMonth'] = f"{MyVarxPmMonth:.7f}"
-				MyVarPmArray['PmYear'] = f"{MyVarxPmYear:.7f}"
-				MyVarPmArray['PmTotal'] = f"{MyVarxPmTotal:.7f}"
+				MyVarPmArray['PmToday'] = f"{MyVarxPmToday:.10f}"
+				MyVarPmArray['PmMonth'] = f"{MyVarxPmMonth:.10f}"
+				MyVarPmArray['PmYear'] = f"{MyVarxPmYear:.10f}"
+				MyVarPmArray['PmTotal'] = f"{MyVarxPmTotal:.10f}"
 
 				MyVarxPmTodayCost = float(MyVarDeviceData[0]['Readings']['PmTodayCost']['Value']) + MyVarCurPrice
 				MyVarxPmMonthCost = float(MyVarDeviceData[0]['Readings']['PmMonthCost']['Value']) + MyVarCurPrice
 				MyVarxPmYearCost = float(MyVarDeviceData[0]['Readings']['PmYearCost']['Value']) + MyVarCurPrice
 				MyVarxPmTotalCost = float(MyVarDeviceData[0]['Readings']['PmTotalCost']['Value']) + MyVarCurPrice
 
-				MyVarPmArray['PmTodayCost'] = f"{MyVarxPmTodayCost:.7f}"
-				MyVarPmArray['PmMonthCost'] = f"{MyVarxPmMonthCost:.7f}"
-				MyVarPmArray['PmYearCost'] = f"{MyVarxPmYearCost:.7f}"
-				MyVarPmArray['PmTotalCost'] = f"{MyVarxPmTotalCost:.7f}"
+				MyVarPmArray['PmTodayCost'] = f"{MyVarxPmTodayCost:.10f}"
+				MyVarPmArray['PmMonthCost'] = f"{MyVarxPmMonthCost:.10f}"
+				MyVarPmArray['PmYearCost'] = f"{MyVarxPmYearCost:.10f}"
+				MyVarPmArray['PmTotalCost'] = f"{MyVarxPmTotalCost:.10f}"
 
 			self.ClassSys.AddReading(MyVarDeviceName, "PmPower", MyVarCurPower)
 
@@ -310,7 +310,7 @@ class MyPowerMessurementClass:
 		return MyVarArray
 
 
-	def TypShelly(self, MyVarReadings):
+	def TypShelly(self, MyVarReadings, MyVarDeviceName):
 		MyVarArray = {}
 		MyVarArray['Error'] = False
 		MyVarArray['Count'] = 0
@@ -322,6 +322,7 @@ class MyPowerMessurementClass:
 		else:
 			if "PmSensorOld" not in MyVarReadings or MyVarReadings['PmSensorOld']['Value'] > MyVarReadings['Sensor']['Value'] or "PmShlyRestart" not in MyVarReadings or MyVarReadings['PmShlyRestart']['Value'] == "true" or "PmFhemStart" not in MyVarReadings or MyVarReadings['PmFhemStart']['Value'] == "true":
 				MyVarArray['Count'] = 0
+				self.ClassSys.AddReading(MyVarDeviceName, "PmShlyRestart", "false")
 			else:
 				MyVarArray['Count'] = (MyVarReadings['Sensor']['Value'] - MyVarReadings['PmSensorOld']['Value']) / 60
 
