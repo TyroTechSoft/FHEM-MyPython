@@ -33,6 +33,7 @@
 ##############################################################
 ### Imported Library
 
+from re import X
 from unicodedata import decimal
 import fhem
 import logging
@@ -57,7 +58,7 @@ try:
 		'User': MyVarSysArgs[3],
 		'Pass': MyVarSysArgs[4],
 		'Device': MyVarSysArgs[5]}
-
+	
 	try:
 		MyVarSysData['DevicePrice'] = MyVarSysArgs[6]
 	except:
@@ -132,8 +133,7 @@ class MyPowerMessurementClass:
 		self.ClassSys = MyClassSys(MyVarSysData)
 		MyVarDate = str(datetime.now().strftime("%d.%m.%Y"))
 		MyVarDeviceName = MyVarSysData['Device']
-		MyVarPmArray = {}
-		
+		MyVarPmArray = {}		
 
 		if MyVarDeviceName == "Set2Zero":
 			MyVarDevices = self.ClassSys.FHEM.get(filters={'PmDevice': 'True'})
@@ -200,6 +200,14 @@ class MyPowerMessurementClass:
 				MyVarPmData = self.TypESPEasy(MyVarDeviceData[0]['Readings'])
 				if MyVarPmData['Error'] == True:
 					self.ClassSys.AddReading(MyVarDeviceName, "State", "The Reading \"Count\" or \"Time\" not exist!")
+				del MyVarPmData['Error']
+
+			elif "ShellyPlus" in MyVarDeviceData[0]['Attributes']['PmTyp']:
+				MyVarDeviceData[0]['Readings']['Sensor']['Value'] = json.loads(MyVarDeviceData[0]['Readings']['Sensor']['Value'])
+				MyVarPmData = self.TypShellyPlus(MyVarDeviceData[0]['Readings'], MyVarDeviceName)
+				self.ClassSys.AddReading(MyVarDeviceName, "PmSensorOld", MyVarPmData['SensorOld'])
+				if MyVarPmData['Error'] == True:
+					self.ClassSys.AddReading(MyVarDeviceName, "State", "The Reading \"Sensor\" or \"Power\" not exist!")
 				del MyVarPmData['Error']
 
 			elif "Shelly" in MyVarDeviceData[0]['Attributes']['PmTyp']:
@@ -327,6 +335,29 @@ class MyPowerMessurementClass:
 				MyVarArray['Count'] = (MyVarReadings['Sensor']['Value'] - MyVarReadings['PmSensorOld']['Value']) / 60
 
 			MyVarArray['Power'] = MyVarReadings['Power']['Value']
+
+		return MyVarArray
+
+
+	def TypShellyPlus(self, MyVarReadings, MyVarDeviceName):
+		MyVarArray = {}
+		MyVarArray['Error'] = False
+		MyVarArray['Count'] = 0
+		MyVarArray['Power'] = 0
+		MyVarArray['Voltage'] = 0
+		MyVarArray['SensorOld'] = MyVarReadings['Sensor']['Value']['aenergy']['total']
+
+		if "Sensor" not in MyVarReadings and "apower" not in MyVarReadings and "voltage" not in MyVarReadings and "aenergy" not in MyVarReadings and "total" not in MyVarReadings:
+			MyVarArray['Error'] = True
+		else:
+			if "PmSensorOld" not in MyVarReadings or MyVarReadings['PmSensorOld']['Value'] > MyVarReadings['Sensor']['Value']['aenergy']['total']:
+				MyVarArray['Count'] = 0
+				self.ClassSys.AddReading(MyVarDeviceName, "PmShlyRestart", "false")
+			else:
+				MyVarArray['Count'] = (MyVarReadings['Sensor']['Value']['aenergy']['total'] - MyVarReadings['PmSensorOld']['Value']) / 60
+				
+			MyVarArray['Power'] = MyVarReadings['Sensor']['Value']['apower']
+			MyVarArray['Voltage'] = MyVarReadings['Sensor']['Value']['voltage']
 
 		return MyVarArray
 

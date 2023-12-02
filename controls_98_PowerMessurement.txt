@@ -1,1 +1,1 @@
-UPD 2023-05-27_13:06:10 14135 FHEM/98_PowerMessurement.py
+UPD 2023-12-02_13:25:29 15733 FHEM/98_PowerMessurement.py
